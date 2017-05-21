@@ -42,8 +42,8 @@ class message(object):
         return location
 
     def onMessage(self, message, metadata):
-        if 'details' in message.keys():
-            if 'sourceipaddress' in message['details'].keys():
+        if 'details' in list(message.keys()):
+            if 'sourceipaddress' in list(message['details'].keys()):
                 ipText = message['details']['sourceipaddress']
                 if isIP(ipText):
                     ip = netaddr.IPNetwork(ipText)[0]
@@ -56,7 +56,7 @@ class message(object):
                     # to a valid, yet meaningless value
                     message['details']['sourceipaddress'] = '0.0.0.0'
 
-            if 'destinationipaddress' in message['details'].keys():
+            if 'destinationipaddress' in list(message['details'].keys()):
                 ipText = message['details']['destinationipaddress']
                 if isIP(ipText):
                     ip = netaddr.IPNetwork(ipText)[0]

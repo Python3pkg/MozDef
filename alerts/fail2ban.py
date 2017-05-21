@@ -8,7 +8,7 @@
 # Contributors:
 # Anthony Verez averez@mozilla.com
 
-from lib.alerttask import AlertTask
+from .lib.alerttask import AlertTask
 
 class AlertFail2ban(AlertTask):
     def main(self):

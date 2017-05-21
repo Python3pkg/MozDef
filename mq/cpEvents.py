@@ -37,7 +37,7 @@ class eventConsumer(ConsumerMixin):
 
     def on_message(self, body, message):
         try:
-            print("RECEIVED MESSAGE: %r" % (body, ))
+            print(("RECEIVED MESSAGE: %r" % (body, )))
             #copy event to es cluster
             try:
                 res=self.esConnection.index(index='events',doc_type='event',doc=body)

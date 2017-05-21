@@ -8,7 +8,7 @@
 # Contributors:
 # Anthony Verez averez@mozilla.com
 
-from lib.alerttask import AlertTask
+from .lib.alerttask import AlertTask
 
 class AlertBroIntel(AlertTask):
     def main(self):
@@ -35,7 +35,7 @@ class AlertBroIntel(AlertTask):
         # append first 3 source IPs
         summary += ' sample sourceips: '
         for e in aggreg['events'][:3]:
-            if 'sourceipaddress' in e['_source']['details'].keys():
+            if 'sourceipaddress' in list(e['_source']['details'].keys()):
                 summary += '{0} '.format(e['_source']['details']['sourceipaddress'])
 
         # Create the alert object based on these properties

@@ -21,7 +21,7 @@ import boto.sts
 import boto.sts.credentials
 import boto.s3
 import gzip
-from StringIO import StringIO
+from io import StringIO
 import json
 import time
 import pyes
@@ -46,7 +46,7 @@ class RoleManager:
             self.local_conn_sts = boto.sts.connect_to_region('us-east-1',
                 aws_access_key_id=self.aws_access_key_id,
                 aws_secret_access_key=self.aws_secret_access_key)
-        except Exception, e:
+        except Exception as e:
             logger.error("Unable to connect to STS due to exception %s" %
                           e.message)
             raise
@@ -56,14 +56,14 @@ class RoleManager:
             try:
                 if self.session_credentials is None or self.session_credentials.is_expired():
                     self.session_credentials = self.local_conn_sts.get_session_token()
-            except Exception, e:
+            except Exception as e:
                 logger.error("Unable to get session token due to exception %s" %
                               e.message)
                 raise
             try:
                 self.session_conn_sts = boto.sts.connect_to_region('us-east-1',
                                 **self.get_credential_arguments(self.session_credentials))
-            except Exception, e:
+            except Exception as e:
                 logger.error("Unable to connect to STS with session token due to exception %s" %
                               e.message)
                 raise
@@ -92,7 +92,7 @@ class RoleManager:
                 role_session_name=role_session_name,
                 policy=policy).credentials
             logger.debug("Assumed new role with credential %s" % self.credentials[role_arn].to_dict())
-        except Exception, e:
+        except Exception as e:
             logger.error("Unable to assume role %s due to exception %s" %
                           (role_arn, e.message))
             self.credentials[role_arn] = False
@@ -216,7 +216,7 @@ def toUTC(suspectedDate,localTimeZone=None):
     objDate=None
     if localTimeZone is None:
         localTimeZone=options.defaultTimeZone
-    if type(suspectedDate) in (str,unicode):
+    if type(suspectedDate) in (str,str):
         objDate=parse(suspectedDate,fuzzy=True)
     elif type(suspectedDate)==datetime:
         objDate=suspectedDate

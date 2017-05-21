@@ -39,7 +39,7 @@
 #    1445536847000
 #  ]
 
-from lib.alerttask import AlertTask
+from .lib.alerttask import AlertTask
 import pyes
 
 class AlertHTTPErrors(AlertTask):

@@ -20,7 +20,7 @@ from multiprocessing import Process, Queue
 import random
 import logging
 from logging.handlers import SysLogHandler
-from Queue import Empty
+from queue import Empty
 from  requests.packages.urllib3.exceptions import ClosedPoolError
 import requests
 import time
@@ -56,7 +56,7 @@ def toUTC(suspectedDate,localTimeZone=None):
     objDate=None
     if localTimeZone is None:
         localTimeZone=options.defaulttimezone
-    if type(suspectedDate) in (str,unicode):
+    if type(suspectedDate) in (str,str):
         objDate=parse(suspectedDate,fuzzy=True)
     elif type(suspectedDate)==datetime:
         objDate=suspectedDate
@@ -84,7 +84,7 @@ def postLogs(logcache):
                 a=httpsession.get_adapter(url)
                 a.max_retries=3
                 r=httpsession.post(url,data=postdata)
-                print(r, postdata)
+                print((r, postdata))
                 #append to posts if this is long running and you want
                 #events to try again later.
                 #posts.append((r,postdata,url))
@@ -134,22 +134,22 @@ def makeEvents():
             for event in events[target:target+1]:
                 event['timestamp'] = pytz.timezone('UTC').localize(datetime.utcnow()).isoformat()
                 #remove stored times
-                if 'utctimestamp' in event.keys():
+                if 'utctimestamp' in list(event.keys()):
                     del event['utctimestamp']
-                if 'receivedtimestamp' in event.keys():
+                if 'receivedtimestamp' in list(event.keys()):
                     del event['receivedtimestamp']
                 
                 #add demo to the tags so it's clear it's not real data.
-                if 'tags' not in event.keys():
+                if 'tags' not in list(event.keys()):
                     event['tags'] = list()
                 
                 event['tags'].append('demodata')
                 
                 #replace potential <randomipaddress> with a random ip address
-                if 'summary' in event.keys() and '<randomipaddress>' in event['summary']:
+                if 'summary' in list(event.keys()) and '<randomipaddress>' in event['summary']:
                     randomIP = genRandomIPv4()
                     event['summary'] = event['summary'].replace("<randomipaddress>", randomIP)
-                    if 'details' not in event.keys():
+                    if 'details' not in list(event.keys()):
                         event['details'] = dict()
                     event['details']['sourceipaddress'] = randomIP
                     event['details']['sourceipv4address'] = randomIP                        
@@ -198,28 +198,28 @@ def makeAlerts():
             for event in events[target:target+1]:
                 event['timestamp'] = pytz.timezone('UTC').localize(datetime.utcnow()).isoformat()
                 #remove stored times
-                if 'utctimestamp' in event.keys():
+                if 'utctimestamp' in list(event.keys()):
                     del event['utctimestamp']
-                if 'receivedtimestamp' in event.keys():
+                if 'receivedtimestamp' in list(event.keys()):
                     del event['receivedtimestamp']
                 
                 #add demo to the tags so it's clear it's not real data.
-                if 'tags' not in event.keys():
+                if 'tags' not in list(event.keys()):
                     event['tags'] = list()
                 
                 event['tags'].append('demodata')
                 event['tags'].append('demoalert')
                 
                 #replace potential <randomipaddress> with a random ip address
-                if 'summary' in event.keys() and '<randomipaddress>' in event['summary']:
+                if 'summary' in list(event.keys()) and '<randomipaddress>' in event['summary']:
                     randomIP = genRandomIPv4()
                     event['summary'] = event['summary'].replace("<randomipaddress>", randomIP)
-                    if 'details' not in event.keys():
+                    if 'details' not in list(event.keys()):
                         event['details'] = dict()
                     event['details']['sourceipaddress'] = randomIP
                     event['details']['sourceipv4address'] = randomIP
 
-                if 'duplicate' in event.keys():
+                if 'duplicate' in list(event.keys()):
                     # send this event multiple times to trigger an alert
                     for x in range(0, int(event['duplicate'])):
                         logcache.put(json.dumps(event))
@@ -268,28 +268,28 @@ def makeAttackers():
             for event in events[target:target+1]:
                 event['timestamp'] = pytz.timezone('UTC').localize(datetime.utcnow()).isoformat()
                 #remove stored times
-                if 'utctimestamp' in event.keys():
+                if 'utctimestamp' in list(event.keys()):
                     del event['utctimestamp']
-                if 'receivedtimestamp' in event.keys():
+                if 'receivedtimestamp' in list(event.keys()):
                     del event['receivedtimestamp']
                 
                 #add demo to the tags so it's clear it's not real data.
-                if 'tags' not in event.keys():
+                if 'tags' not in list(event.keys()):
                     event['tags'] = list()
                 
                 event['tags'].append('demodata')
                 event['tags'].append('demoalert')
                 
                 #replace potential <randomipaddress> with a random ip address
-                if 'summary' in event.keys() and '<randomipaddress>' in event['summary']:
+                if 'summary' in list(event.keys()) and '<randomipaddress>' in event['summary']:
                     randomIP = genAttackerIPv4()
                     event['summary'] = event['summary'].replace("<randomipaddress>", randomIP)
-                    if 'details' not in event.keys():
+                    if 'details' not in list(event.keys()):
                         event['details'] = dict()
                     event['details']['sourceipaddress'] = randomIP
                     event['details']['sourceipv4address'] = randomIP
 
-                if 'duplicate' in event.keys():
+                if 'duplicate' in list(event.keys()):
                     # send this event multiple times to trigger an alert
                     for x in range(0, int(event['duplicate'])):
                         logcache.put(json.dumps(event))

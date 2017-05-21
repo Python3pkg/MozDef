@@ -81,7 +81,7 @@ def writeFrontendStats(data, mongo):
     # Empty everything before
     mongo.healthfrontend.remove({})
     for host in data:
-        for key in host['_source']['details'].keys():
+        for key in list(host['_source']['details'].keys()):
             # remove unwanted data
             if '.' in key:
                 del host['_source']['details'][key]

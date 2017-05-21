@@ -42,7 +42,7 @@ class message(object):
         self.configfile = './plugins/test.conf'
         self.options = None
         if os.path.exists(self.configfile):
-            print('found conf file {0}'.format(self.configfile))
+            print(('found conf file {0}'.format(self.configfile)))
             self.initConfiguration()
         
 

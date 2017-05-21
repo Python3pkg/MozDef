@@ -27,7 +27,7 @@ import random
 import errno
 import kombu
 from kombu import Connection, Queue, Exchange
-from Queue import Empty, Full
+from queue import Empty, Full
 import socket, struct, sys
 from socket import inet_ntoa
 
@@ -75,7 +75,7 @@ def toUTC(suspectedDate, localTimeZone=None):
             objDate = suspectedDate
         elif isNumber(suspectedDate):   # epoch?
             objDate = datetime.fromtimestamp(float(suspectedDate))
-        elif type(suspectedDate) in (str, unicode):
+        elif type(suspectedDate) in (str, str):
             objDate = parse(suspectedDate, fuzzy=True)
 
         if objDate.tzinfo is None:

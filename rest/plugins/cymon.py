@@ -62,8 +62,8 @@ class message(object):
             response.status = 500
 
 
-        print(requestDict, requestDict.keys())
-        if 'ipaddress' in requestDict.keys():
+        print((requestDict, list(requestDict.keys())))
+        if 'ipaddress' in list(requestDict.keys()):
             url="https://cymon.io/api/nexus/v1/ip/{0}/events?combined=true&format=json".format(requestDict['ipaddress'])
 
             # add the cymon api key?

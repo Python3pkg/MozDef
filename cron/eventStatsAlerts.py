@@ -89,14 +89,14 @@ def esSearch(es, begindateUTC=None, enddateUTC=None):
         for r in rawresults['hits']['hits']:
             for i in r['_source']['details']['counts']:
                 #print(i.values()[0])
-                if i.keys()[0] not in stats.keys():
-                    stats[i.keys()[0]]=list()
-                stats[i.keys()[0]].append(i.values()[0])
+                if list(i.keys())[0] not in list(stats.keys()):
+                    stats[list(i.keys())[0]]=list()
+                stats[list(i.keys())[0]].append(list(i.values())[0])
 
         # make a dictionairy of user-defined
         # aggregation threshold percentages
-        aggregationthresholds = dict(zip(options.aggregations,
-                                         options.aggregationthresholds))
+        aggregationthresholds = dict(list(zip(options.aggregations,
+                                         options.aggregationthresholds)))
 
         
         #for our running history of counts per category
@@ -107,21 +107,21 @@ def esSearch(es, begindateUTC=None, enddateUTC=None):
             smean=round(numpy.mean(stats[s]))
             sstd=round(numpy.std(stats[s]))
             stat = round((sstd/smean)*100, 2)
-            if s in aggregationthresholds.keys():
+            if s in list(aggregationthresholds.keys()):
                 if stat > aggregationthresholds[s]:
                     alert = True
             elif  stat > options.defaultthreshold:
                 alert = True
 
             if alert: 
-                print('{0} {1}%: \n\t\t{2} \n\t\t{3} \n\t\t{4}'.format(
+                print(('{0} {1}%: \n\t\t{2} \n\t\t{3} \n\t\t{4}'.format(
                                                 s,
                                                 stat,
                                                 stats[s],
                                                 smean,
                                                 sstd
                                                 )
-                      )        
+                      ))        
 
     except pyes.exceptions.NoServerAvailable:
         logger.error('Elastic Search server could not be reached, check network connectivity')

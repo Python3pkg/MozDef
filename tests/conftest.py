@@ -1,7 +1,7 @@
 import pytest
 import tempfile
 import os
-import ConfigParser
+import configparser
 
 
 def getConfig(optionname,thedefault,section,configfile):
@@ -15,7 +15,7 @@ def getConfig(optionname,thedefault,section,configfile):
     retvalue=thedefault
     opttype=type(thedefault)
     if os.path.isfile(configfile):
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         config.readfp(open(configfile))
         if config.has_option(section,optionname):
             if opttype==bool:
@@ -41,7 +41,7 @@ def options():
     options["kibanaurl"]=getConfig('kibanaurl','http://localhost:9090/','mozdef',configFile)    
     if pytest.config.option.verbose > 0:
         options["verbose"]=True
-        print('Using options: \n\t%r' % options)
+        print(('Using options: \n\t%r' % options))
         
     else:
         options["verbose"]=False

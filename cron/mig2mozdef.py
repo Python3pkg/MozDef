@@ -15,7 +15,7 @@ from configlib import getConfig,OptionParser,setConfig
 import logging
 from logging.handlers import SysLogHandler
 import gzip
-from StringIO import StringIO
+from io import StringIO
 import json
 import time
 import pyes
@@ -58,7 +58,7 @@ def toUTC(suspectedDate,localTimeZone=None):
     objDate=None
     if localTimeZone is None:
         localTimeZone=options.defaultTimeZone
-    if type(suspectedDate) in (str,unicode):
+    if type(suspectedDate) in (str,str):
         objDate=parse(suspectedDate,fuzzy=True)
     elif type(suspectedDate)==datetime:
         objDate=suspectedDate

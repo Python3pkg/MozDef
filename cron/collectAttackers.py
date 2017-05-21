@@ -71,7 +71,7 @@ def toUTC(suspectedDate, localTimeZone=None):
     objDate = None
     if localTimeZone is None:
         localTimeZone=options.defaulttimezone
-    if type(suspectedDate) in (str, unicode):
+    if type(suspectedDate) in (str, str):
         objDate = parse(suspectedDate, fuzzy=True)
     elif type(suspectedDate) == datetime:
         objDate = suspectedDate
@@ -95,7 +95,7 @@ def keypaths(nested):
     ''' return a list of nested dict key paths
         like: [u'_source', u'details', u'hostname']
     '''
-    for key, value in nested.iteritems():
+    for key, value in nested.items():
         if isinstance(value, collections.Mapping):
             for subkey, subvalue in keypaths(value):
                 yield [key] + subkey, subvalue
@@ -289,8 +289,8 @@ def searchMongoAlerts(mozdefdb):
                         if len(categoryCounts) == 1:
                             #is the alert category mapped to an attacker category?
                             for category in options.categorymapping:
-                                if category.keys()[0] == categoryCounts[0][0]:
-                                    attacker['category'] = category[category.keys()[0]]
+                                if list(category.keys())[0] == categoryCounts[0][0]:
+                                    attacker['category'] = category[list(category.keys())[0]]
                                     attackers.save(attacker)
 
 
@@ -324,7 +324,7 @@ def broadcastAttacker(attacker):
         # generate an 'alert' structure for this attacker:
         mqAlert = dict(severity='NOTICE', category='attacker')
 
-        if 'datecreated' in attacker.keys():
+        if 'datecreated' in list(attacker.keys()):
             mqAlert['utctimestamp'] = attacker['datecreated'].isoformat()
 
         mqAlert['summary'] = 'New Attacker: {0} events: {1}, alerts: {2}'.format(attacker['indicators'], attacker['eventscount'], attacker['alertscount'])
@@ -382,7 +382,7 @@ def updateAttackerGeoIP(mozdefdb, attackerID, eventDictionary):
       #"country_name": "Poland",
       #"continent": "EU"
     #logger.debug(eventDictionary)
-    if 'details' in eventDictionary.keys():
+    if 'details' in list(eventDictionary.keys()):
         if  'sourceipgeolocation' in eventDictionary['details']:
             attackers=mozdefdb['attackers']
             attacker = attackers.find_one({'_id': attackerID})
@@ -390,11 +390,11 @@ def updateAttackerGeoIP(mozdefdb, attackerID, eventDictionary):
                 attacker['geocoordinates'] = dict(countrycode='',
                                                   longitude=0,
                                                   latitude=0)
-                if 'country_code' in eventDictionary['details']['sourceipgeolocation'].keys():
+                if 'country_code' in list(eventDictionary['details']['sourceipgeolocation'].keys()):
                     attacker['geocoordinates']['countrycode'] = eventDictionary['details']['sourceipgeolocation']['country_code']
-                if 'longitude' in eventDictionary['details']['sourceipgeolocation'].keys():
+                if 'longitude' in list(eventDictionary['details']['sourceipgeolocation'].keys()):
                     attacker['geocoordinates']['longitude'] = eventDictionary['details']['sourceipgeolocation']['longitude']
-                if 'latitude' in eventDictionary['details']['sourceipgeolocation'].keys():
+                if 'latitude' in list(eventDictionary['details']['sourceipgeolocation'].keys()):
                     attacker['geocoordinates']['latitude'] = eventDictionary['details']['sourceipgeolocation']['latitude']
                 attackers.save(attacker)
     else:

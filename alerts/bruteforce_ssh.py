@@ -8,7 +8,7 @@
 # Contributors:
 # Anthony Verez averez@mozilla.com
 
-from lib.alerttask import AlertTask
+from .lib.alerttask import AlertTask
 
 class AlertBruteforceSsh(AlertTask):
     def main(self):
@@ -34,7 +34,7 @@ class AlertBruteforceSsh(AlertTask):
         summary = ('{0} ssh bruteforce attempts by {1}'.format(aggreg['count'], aggreg['value']))
         # append first 3 hostnames
         for e in aggreg['events'][:3]:
-            if 'details' in e.keys() and 'hostname' in e['details']:
+            if 'details' in list(e.keys()) and 'hostname' in e['details']:
                 summary += ' on {0}'.format(e['_source']['details']['hostname'])
 
         # Create the alert object based on these properties

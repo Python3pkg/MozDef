@@ -16,7 +16,7 @@ import re
 import json
 import glob
 import string
-import ConfigParser
+import configparser
 import tempfile
 import logging
 import socket
@@ -117,7 +117,7 @@ class MozDefEvent():
             raise MozDefError('Summary is a required field')
 
         if self.debug:
-            print(json.dumps(log_msg, sort_keys=True, indent=4))
+            print((json.dumps(log_msg, sort_keys=True, indent=4)))
             #return
 
         try:
@@ -184,7 +184,7 @@ class Pygtail(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         """
         Return the next line in the file, updating the offset.
         """
@@ -216,7 +216,7 @@ class Pygtail(object):
 
     def __next__(self):
         """`__next__` is the Python 3 version of `next`"""
-        return self.next()
+        return next(self)
 
     def readlines(self):
         """
@@ -335,7 +335,7 @@ def getConfig(optionname, thedefault, configfile):
     retvalue = thedefault
     opttype = type(thedefault)
     if os.path.isfile(configfile):
-        config = ConfigParser.ConfigParser()
+        config = configparser.ConfigParser()
         config.readfp(open(configfile))
         if config.has_option('options', optionname):
             if opttype == bool:

@@ -51,7 +51,7 @@ def toUTC(suspectedDate, localTimeZone=None):
     objDate = None
     if localTimeZone is None:
         localTimeZone=options.defaulttimezone    
-    if type(suspectedDate) in (str, unicode):
+    if type(suspectedDate) in (str, str):
         objDate = parse(suspectedDate, fuzzy=True)
     elif type(suspectedDate) == datetime:
         objDate = suspectedDate

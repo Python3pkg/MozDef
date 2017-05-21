@@ -160,11 +160,11 @@ def formatAlert(jsonDictIn):
     severity = 'INFO'
     summary = ''
     category = ''
-    if 'severity' in jsonDictIn.keys():
+    if 'severity' in list(jsonDictIn.keys()):
         severity = jsonDictIn['severity']
-    if 'summary' in jsonDictIn.keys():
+    if 'summary' in list(jsonDictIn.keys()):
         summary = jsonDictIn['summary']
-    if 'category' in jsonDictIn.keys():
+    if 'category' in list(jsonDictIn.keys()):
         category = jsonDictIn['category']
 
     return colorify('{0}: {1} {2}'.format(severity, colors['blue']
@@ -207,7 +207,7 @@ class mozdefBot():
                 if not options.join:
                     return
                 for chan in options.join.split(","):
-                    if chan in options.channelkeys.keys():
+                    if chan in list(options.channelkeys.keys()):
                         client.join(chan, options.channelkeys[chan])
                     else:
                         client.join(chan)
@@ -311,7 +311,7 @@ class alertConsumer(ConsumerMixin):
             # just to be safe..check what we were sent.
             if isinstance(body, dict):
                 bodyDict = body
-            elif isinstance(body, str) or isinstance(body, unicode):
+            elif isinstance(body, str) or isinstance(body, str):
                 try:
                     bodyDict = json.loads(body)  # lets assume it's json
                 except ValueError as e:
@@ -326,7 +326,7 @@ class alertConsumer(ConsumerMixin):
             # process valid message
             # see where we send this alert
             ircchannel = options.alertircchannel
-            if 'ircchannel' in bodyDict.keys():
+            if 'ircchannel' in list(bodyDict.keys()):
                 if bodyDict['ircchannel'] in options.join.split(","):
                     ircchannel = bodyDict['ircchannel']
 

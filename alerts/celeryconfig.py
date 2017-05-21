@@ -1,16 +1,16 @@
 from celery import Celery
-from lib.config import ALERTS, LOGGING, RABBITMQ
+from .lib.config import ALERTS, LOGGING, RABBITMQ
 from logging.config import dictConfig
 
-print ALERTS
+print(ALERTS)
 
 # Alert files to include
 alerts_include = []
-for alert in ALERTS.keys():
+for alert in list(ALERTS.keys()):
     alerts_include.append('.'.join((alert).split('.')[:-1]))
 alerts_include = list(set(alerts_include))
 
-print alerts_include
+print(alerts_include)
 
 BROKER_URL =  'amqp://{0}:{1}@{2}:{3}//'.format(
                 RABBITMQ['mquser'],
@@ -33,16 +33,16 @@ CELERY_QUEUES = {
 CELERYBEAT_SCHEDULE = {}
 
 # Register frequency of the tasks in the scheduler
-for alert in ALERTS.keys():
+for alert in list(ALERTS.keys()):
     CELERYBEAT_SCHEDULE[alert] = {
         'task': alert,
         'schedule': ALERTS[alert]['schedule'],
         'options': {'queue': 'celery-default', "exchange": "celery-default"},
     }
     # add optional parameters:
-    if 'args' in ALERTS[alert].keys():
+    if 'args' in list(ALERTS[alert].keys()):
         CELERYBEAT_SCHEDULE[alert]['args']=ALERTS[alert]['args']
-    if 'kwargs' in ALERTS[alert].keys():
+    if 'kwargs' in list(ALERTS[alert].keys()):
         CELERYBEAT_SCHEDULE[alert]['kwargs']=ALERTS[alert]['kwargs']
 
 # Load logging config

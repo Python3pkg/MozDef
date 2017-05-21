@@ -23,7 +23,7 @@ class Elasticsearch(object):
         self.conn = pyes.ES(esserver)
 
     def deleteIndex(self, index):
-        print('Deleting %s index...' % index)
+        print(('Deleting %s index...' % index))
         try:
             self.conn.indices.delete_index(index)
         except:
@@ -35,20 +35,20 @@ class Elasticsearch(object):
         url = '{0}/_template/{1}'.format(self.esserver, template_name)
         r = requests.put(url=url, data=templateData)
         if r.status_code == 200:
-            print('Successfully put %s template' % template_name)
+            print(('Successfully put %s template' % template_name))
         else:
-            print('Problem putting %s template %r' % (template_name, r))
+            print(('Problem putting %s template %r' % (template_name, r)))
         f.close()
 
     def createIndex(self, index):
-        print('Creating %s index...' % index)
+        print(('Creating %s index...' % index))
         try:
             self.conn.indices.create_index(index)
         except:
             pass
 
     def loadDocs(self, index, docs_type, docs_file, update_date=False):
-        print('Loading docs from %s...' % docs_file)
+        print(('Loading docs from %s...' % docs_file))
         f = open(docs_file)
         data = json.load(f)
         for l in data:
@@ -59,7 +59,7 @@ class Elasticsearch(object):
         f.close()
 
     def loadDashboard(self, dash_name, dash_file):
-        print('Loading %s dashboard...' % dash_name)
+        print(('Loading %s dashboard...' % dash_name))
 
         f = open(dash_file)
         dashboardjson = json.load(f)
@@ -74,8 +74,8 @@ class Elasticsearch(object):
         }
         r = requests.put(url=url, data=json.dumps(dashboarddata))
         if r.status_code < 220:
-            print('Successfully put %s kibana dashboard' % dash_name)
+            print(('Successfully put %s kibana dashboard' % dash_name))
         else:
-            print(r.json())
-            print('Problem putting %s kibana dashboard %r' % (dash_name, r))
+            print((r.json()))
+            print(('Problem putting %s kibana dashboard %r' % (dash_name, r)))
         f.close()

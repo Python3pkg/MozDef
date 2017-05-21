@@ -46,7 +46,7 @@ def registerPlugins():
                     else:
                         mpriority = 100
                     if isinstance(mreg, list):
-                        print('[*] plugin {0} registered to receive messages with {1}'.format(mname, mreg))
+                        print(('[*] plugin {0} registered to receive messages with {1}'.format(mname, mreg)))
                         pluginList.append((mclass, mreg, mpriority))
     return pluginList
 
@@ -56,7 +56,7 @@ def dict2List(inObj):
        return a list of the dict keys and values
     '''
     if isinstance(inObj, dict):
-        for key, value in inObj.iteritems():
+        for key, value in inObj.items():
             if isinstance(value, dict):
                 for d in dict2List(value):
                     yield d
@@ -68,7 +68,7 @@ def dict2List(inObj):
                 yield key.encode('ascii', 'ignore').lower()
                 if isinstance(value, str):
                     yield value.lower()
-                elif isinstance(value, unicode):
+                elif isinstance(value, str):
                     yield value.encode('ascii', 'ignore').lower()
                 else:
                     yield value
@@ -76,7 +76,7 @@ def dict2List(inObj):
         for v in inObj:
             if isinstance(v, str):
                 yield v.lower()
-            elif isinstance(v, unicode):
+            elif isinstance(v, str):
                 yield v.encode('ascii', 'ignore').lower()
             elif isinstance(v, list):
                 for l in dict2List(v):
@@ -144,7 +144,7 @@ class alertConsumer(ConsumerMixin):
             # just to be safe..check what we were sent.
             if isinstance(body, dict):
                 bodyDict = body
-            elif isinstance(body, str) or isinstance(body, unicode):
+            elif isinstance(body, str) or isinstance(body, str):
                 try:
                     bodyDict = json.loads(body)  # lets assume it's json
                 except ValueError as e:

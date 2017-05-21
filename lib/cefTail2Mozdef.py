@@ -25,7 +25,7 @@ from requests_futures.sessions import FuturesSession
 from collections import deque
 import fcntl
 from multiprocessing import Process, Queue, JoinableQueue
-from Queue import Empty, Full
+from queue import Empty, Full
 import random
 import errno
 import select
@@ -40,10 +40,10 @@ class Buffer(deque):
             self.append(i)
 
     def peek(self, how_many):
-        return ''.join([self[i] for i in xrange(how_many)])
+        return ''.join([self[i] for i in range(how_many)])
 
     def get(self, how_many):
-        return ''.join([self.popleft() for _ in xrange(how_many)])
+        return ''.join([self.popleft() for _ in range(how_many)])
     
     
 logger = logging.getLogger(sys.argv[0])
@@ -141,7 +141,7 @@ class Pygtail(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         """
         Return the next line in the file, updating the offset.
         """
@@ -173,7 +173,7 @@ class Pygtail(object):
 
     def __next__(self):
         """`__next__` is the Python 3 version of `next`"""
-        return self.next()
+        return next(self)
 
     def readlines(self):
         """
@@ -334,19 +334,19 @@ def parseCEF(acef):
     for field in fields:
         if 'label' in field.lower():
             #this is a label for another field..fix up our dict to have the label as key and data as value
-            if field.lower().replace('label','') in rawcefdict.keys():
+            if field.lower().replace('label','') in list(rawcefdict.keys()):
                 cef['details'][rawcefdict[field.lower()]]=rawcefdict[field.lower().replace('label','')].decode('ascii','ignore')    
                 rawcefdict.pop(field.lower().replace('label',''))
             rawcefdict.pop(field.lower(),'')
     #add whatever is left (non label field or value) to the cef dictionary
-    for k,v in rawcefdict.iteritems():
+    for k,v in rawcefdict.items():
         cef['details'][k]=v.decode('ascii','ignore')
     #pick an eventtimestamp if one exists. 
-    if 'start' in cef['details'].keys():
+    if 'start' in list(cef['details'].keys()):
         cef['timestamp']=toUTC(cef['details']['start']).isoformat()
-    elif 'end' in cef['details'].keys():
+    elif 'end' in list(cef['details'].keys()):
         cef['timestamp']=toUTC(cef['details']['end']).isoformat()
-    elif 'rt' in cef['details'].keys():
+    elif 'rt' in list(cef['details'].keys()):
         cef['timestamp']=toUTC(cef['details']['rt']).isoformat()
     else:
         cef['timestamp']=toUTC(datetime.now()).isoformat()        

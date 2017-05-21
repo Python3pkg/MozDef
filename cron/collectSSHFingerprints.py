@@ -109,7 +109,7 @@ def correlateSSHKeys(esResults):
             hostname = r['_source']['details']['hostname']
             processid = r['_source']['details']['processid']
             sshkey = r['_source']['summary'].split('key:')[1].strip()
-            if '{0}:{1}'.format(hostname, processid) not in correlations.keys():
+            if '{0}:{1}'.format(hostname, processid) not in list(correlations.keys()):
                 correlations['{0}:{1}'.format(hostname, processid)] = dict(sshkey=sshkey)
     # find the users and match on host:processid
     for r in esResults['hits']['hits']:
@@ -117,11 +117,11 @@ def correlateSSHKeys(esResults):
             hostname = r['_source']['details']['hostname']
             processid = r['_source']['details']['processid']
             username = userre.split(r['_source']['summary'])[1]
-            if '{0}:{1}'.format(hostname, processid) in correlations.keys() and 'username' not in correlations['{0}:{1}'.format(hostname, processid)].keys():
+            if '{0}:{1}'.format(hostname, processid) in list(correlations.keys()) and 'username' not in list(correlations['{0}:{1}'.format(hostname, processid)].keys()):
                 correlations['{0}:{1}'.format(hostname, processid)]['username'] = username
 
     for c in correlations:
-        if 'username' in correlations[c].keys():
+        if 'username' in list(correlations[c].keys()):
             if correlations[c] not in uniqueCorrelations:
                 uniqueCorrelations.append(correlations[c])
     return uniqueCorrelations

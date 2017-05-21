@@ -29,7 +29,7 @@ def test_basic_event_send(options):
         anevent['timestamp']=datetime.utcnow().isoformat()
         anevent['details']['uuid']=str(uuid.uuid1())
         if options["verbose"]:
-            print('sending {0}'.format(anevent))
+            print(('sending {0}'.format(anevent)))
         r=requests.put(url="http://{0}/events".format(server),data=json.dumps(anevent))
         if options["verbose"]:
             print(r)    
@@ -62,7 +62,7 @@ def test_event_send_and_store(options):
         anevent['details']['uuid']=str(uuid.uuid1())
         uuids.append(anevent['details']['uuid'])
         if options["verbose"]:
-            print('sending {0}'.format(anevent))
+            print(('sending {0}'.format(anevent)))
         r=requests.put(url="http://{0}/events".format(inputServer),data=json.dumps(anevent))
         if options["verbose"]:
             print(r)    

@@ -22,7 +22,7 @@ import re
 import sys
 import socket
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from configlib import getConfig, OptionParser
 from datetime import datetime, timedelta
 from dateutil.parser import parse
@@ -56,7 +56,7 @@ class PTRequestor(object):
                 # saw this event last time, just ignore it
                 continue
             self._events[x['id']] = x
-        if 'reached_record_limit' in resp.keys() and resp['reached_record_limit']:
+        if 'reached_record_limit' in list(resp.keys()) and resp['reached_record_limit']:
             return resp['min_id']
         return None
 
@@ -81,12 +81,12 @@ class PTRequestor(object):
             maxid = self.makerequest(query, stime, etime, maxid)
             if maxid == None:
                 break
-            if len(self._events.keys()) > self._evmax:
+            if len(list(self._events.keys())) > self._evmax:
                 sys.stderr.write('WARNING: papertrail esworker hitting event request limit\n')
                 break
         # cache event ids we return to allow for some duplicate filtering checks
         # during next run
-        self._evidcache = self._events.keys()
+        self._evidcache = list(self._events.keys())
         return self._events
 
 
@@ -126,7 +126,7 @@ def toUTC(suspectedDate, localTimeZone=None):
         # epoch? but seconds/milliseconds/nanoseconds (lookin at you heka)
         epochDivisor = int(str(1) + '0'*(digits(suspectedDate) % 10))
         objDate = datetime.fromtimestamp(float(suspectedDate/epochDivisor))
-    elif type(suspectedDate) in (str, unicode):
+    elif type(suspectedDate) in (str, str):
         objDate = parse(suspectedDate, fuzzy=True)
 
     if objDate.tzinfo is None:
@@ -143,7 +143,7 @@ def toUTC(suspectedDate, localTimeZone=None):
 def removeDictAt(aDict):
     '''remove the @ symbol from any field/key names'''
     returndict = dict()
-    for k, v in aDict.iteritems():
+    for k, v in aDict.items():
         k = k.replace('@', '')
         returndict[k] = v
     return returndict
@@ -157,16 +157,16 @@ def removeAt(astring):
 def isCEF(aDict):
     # determine if this is a CEF event
     # could be an event posted to the /cef http endpoint
-    if 'endpoint' in aDict.keys() and aDict['endpoint'] == 'cef':
+    if 'endpoint' in list(aDict.keys()) and aDict['endpoint'] == 'cef':
         return True
     # maybe it snuck in some other way
     # check some key CEF indicators (the header fields)
-    if 'fields' in aDict.keys() and isinstance(aDict['fields'], dict):
-        lowerKeys = [s.lower() for s in aDict['fields'].keys()]
+    if 'fields' in list(aDict.keys()) and isinstance(aDict['fields'], dict):
+        lowerKeys = [s.lower() for s in list(aDict['fields'].keys())]
         if 'devicevendor' in lowerKeys and 'deviceproduct' in lowerKeys and 'deviceversion' in lowerKeys:
             return True
-    if 'details' in aDict.keys() and isinstance(aDict['details'], dict):
-        lowerKeys = [s.lower() for s in aDict['details'].keys()]
+    if 'details' in list(aDict.keys()) and isinstance(aDict['details'], dict):
+        lowerKeys = [s.lower() for s in list(aDict['details'].keys())]
         if 'devicevendor' in lowerKeys and 'deviceproduct' in lowerKeys and 'deviceversion' in lowerKeys:
             return True
     return False
@@ -177,18 +177,18 @@ def safeString(aString):
     returnString = ''
     if isinstance(aString, str):
         returnString = aString
-    if isinstance(aString, unicode):
+    if isinstance(aString, str):
         returnString = aString.encode('ascii', 'ignore')
     return returnString
 
 
 def toUnicode(obj, encoding='utf-8'):
-    if type(obj) in [int, long, float, complex]:
+    if type(obj) in [int, int, float, complex]:
         # likely a number, convert it to string to get to unicode
         obj = str(obj)
-    if isinstance(obj, basestring):
-        if not isinstance(obj, unicode):
-            obj = unicode(obj, encoding)
+    if isinstance(obj, str):
+        if not isinstance(obj, str):
+            obj = str(obj, encoding)
     return obj
 
 
@@ -209,56 +209,56 @@ def keyMapping(aDict):
     returndict['receivedtimestamp'] = toUTC(datetime.now())
     returndict['mozdefhostname'] = options.mozdefhostname
     try:
-        for k, v in aDict.iteritems():
+        for k, v in aDict.items():
             k = removeAt(k).lower()
 
             if k in ('message', 'summary'):
-                returndict[u'summary'] = toUnicode(v)
+                returndict['summary'] = toUnicode(v)
 
-            if k in ('payload') and 'summary' not in aDict.keys():
+            if k in ('payload') and 'summary' not in list(aDict.keys()):
                 # special case for heka if it sends payload as well as a summary, keep both but move payload to the details section.
-                returndict[u'summary'] = toUnicode(v)
+                returndict['summary'] = toUnicode(v)
             elif k in ('payload'):
-                if 'details' not in returndict.keys():
-                    returndict[u'details'] = dict()
-                returndict[u'details']['payload'] = toUnicode(v)
+                if 'details' not in list(returndict.keys()):
+                    returndict['details'] = dict()
+                returndict['details']['payload'] = toUnicode(v)
 
             if k in ('eventtime', 'timestamp', 'utctimestamp'):
-                returndict[u'utctimestamp'] = toUTC(v)
-                returndict[u'timestamp'] = toUTC(v)
+                returndict['utctimestamp'] = toUTC(v)
+                returndict['timestamp'] = toUTC(v)
 
             if k in ('hostname', 'source_host', 'host'):
-                returndict[u'hostname'] = toUnicode(v)
+                returndict['hostname'] = toUnicode(v)
 
             if k in ('tags'):
                 if len(v) > 0:
-                    returndict[u'tags'] = v
+                    returndict['tags'] = v
 
             # nxlog keeps the severity name in syslogseverity,everyone else should use severity or level.
             if k in ('syslogseverity', 'severity', 'severityvalue', 'level'):
-                returndict[u'severity'] = toUnicode(v).upper()
+                returndict['severity'] = toUnicode(v).upper()
 
             if k in ('facility', 'syslogfacility'):
-                returndict[u'facility'] = toUnicode(v)
+                returndict['facility'] = toUnicode(v)
 
             if k in ('pid', 'processid'):
-                returndict[u'processid'] = toUnicode(v)
+                returndict['processid'] = toUnicode(v)
 
             # nxlog sets sourcename to the processname (i.e. sshd), everyone else should call it process name or pname
             if k in ('pname', 'processname', 'sourcename'):
-                returndict[u'processname'] = toUnicode(v)
+                returndict['processname'] = toUnicode(v)
 
             # the file, or source
             if k in ('path', 'logger', 'file'):
-                returndict[u'eventsource'] = toUnicode(v)
+                returndict['eventsource'] = toUnicode(v)
 
             if k in ('type', 'eventtype', 'category'):
-                returndict[u'category'] = toUnicode(v)
+                returndict['category'] = toUnicode(v)
 
             # custom fields as a list/array
             if k in ('fields', 'details'):
                 if len(v) > 0:
-                    returndict[u'details'] = v
+                    returndict['details'] = v
 
             # custom fields/details as a one off, not in an array
             # i.e. fields.something=value or details.something=value
@@ -267,32 +267,32 @@ def keyMapping(aDict):
                 newName = k.replace('fields.', '')
                 newName = newName.lower().replace('details.', '')
                 # add a dict to hold the details if it doesn't exist
-                if 'details' not in returndict.keys():
-                    returndict[u'details'] = dict()
+                if 'details' not in list(returndict.keys()):
+                    returndict['details'] = dict()
                 # add field with a special case for shippers that
                 # don't send details
                 # in an array as int/floats/strings
                 # we let them dictate the data type with field_datatype
                 # convention
                 if newName.endswith('_int'):
-                    returndict[u'details'][unicode(newName)] = int(v)
+                    returndict['details'][str(newName)] = int(v)
                 elif newName.endswith('_float'):
-                    returndict[u'details'][unicode(newName)] = float(v)
+                    returndict['details'][str(newName)] = float(v)
                 else:
-                    returndict[u'details'][unicode(newName)] = toUnicode(v)
+                    returndict['details'][str(newName)] = toUnicode(v)
 
 
         #nxlog windows log handling
-        if 'Domain' in aDict.keys() and 'SourceModuleType' in aDict.keys():
+        if 'Domain' in list(aDict.keys()) and 'SourceModuleType' in list(aDict.keys()):
             # add a dict to hold the details if it doesn't exist
-            if 'details' not in returndict.keys():
-                returndict[u'details'] = dict()
+            if 'details' not in list(returndict.keys()):
+                returndict['details'] = dict()
 
             # nxlog parses all windows event fields very well
             # copy all fields to details
-            returndict[u'details'][k]=v
+            returndict['details'][k]=v
 
-        if 'utctimestamp' not in returndict.keys():
+        if 'utctimestamp' not in list(returndict.keys()):
             # default in case we don't find a reasonable timestamp
             returndict['utctimestamp'] = toUTC(datetime.now())
 
@@ -341,13 +341,13 @@ class taskConsumer(object):
                     event['tags'] = ['papertrail', options.ptacctname]
                     event['details'] = msgdict
 
-                    if event['details'].has_key('generated_at'):
+                    if 'generated_at' in event['details']:
                         event['utctimestamp'] = toUTC(event['details']['generated_at'])
-                    if event['details'].has_key('hostname'):
+                    if 'hostname' in event['details']:
                         event['hostname'] = event['details']['hostname']
-                    if event['details'].has_key('message'):
+                    if 'message' in event['details']:
                         event['summary'] = event['details']['message']
-                    if event['details'].has_key('severity'):
+                    if 'severity' in event['details']:
                         event['severity'] = event['details']['severity']
                     else:
                         event['severity'] = 'INFO'
@@ -389,7 +389,7 @@ class taskConsumer(object):
             # just to be safe..check what we were sent.
             if isinstance(body, dict):
                 bodyDict = body
-            elif isinstance(body, str) or isinstance(body, unicode):
+            elif isinstance(body, str) or isinstance(body, str):
                 try:
                     bodyDict = json.loads(body)   # lets assume it's json
                 except ValueError as e:
@@ -402,7 +402,7 @@ class taskConsumer(object):
                 #message.ack()
                 return
 
-            if 'customendpoint' in bodyDict.keys() and bodyDict['customendpoint']:
+            if 'customendpoint' in list(bodyDict.keys()) and bodyDict['customendpoint']:
                 # custom document
                 # send to plugins to allow them to modify it if needed
                 (normalizedDict, metadata) = sendEventToPlugins(bodyDict, metadata, pluginList)
@@ -412,7 +412,7 @@ class taskConsumer(object):
                 normalizedDict = keyMapping(bodyDict)
 
                 # send to plugins to allow them to modify it if needed
-                if normalizedDict is not None and isinstance(normalizedDict, dict) and normalizedDict.keys():
+                if normalizedDict is not None and isinstance(normalizedDict, dict) and list(normalizedDict.keys()):
                     (normalizedDict, metadata) = sendEventToPlugins(normalizedDict, metadata, pluginList)
 
             # drop the message if a plug in set it to None
@@ -427,7 +427,7 @@ class taskConsumer(object):
             if isCEF(normalizedDict):
                 # cef records are set to the 'deviceproduct' field value.
                 metadata['doc_type'] = 'cef'
-                if 'details' in normalizedDict.keys() and 'deviceproduct' in normalizedDict['details'].keys():
+                if 'details' in list(normalizedDict.keys()) and 'deviceproduct' in list(normalizedDict['details'].keys()):
                     # don't create strange doc types..
                     if ' ' not in normalizedDict['details']['deviceproduct'] and '.' not in normalizedDict['details']['deviceproduct']:
                         metadata['doc_type'] = normalizedDict['details']['deviceproduct']
@@ -493,7 +493,7 @@ def registerPlugins():
                     else:
                         mpriority = 100
                     if isinstance(mreg, list):
-                        print('[*] plugin {0} registered to receive messages with {1}'.format(mname, mreg))
+                        print(('[*] plugin {0} registered to receive messages with {1}'.format(mname, mreg)))
                         pluginList.append((mclass, mreg, mpriority))
     return pluginList
 
@@ -516,7 +516,7 @@ def flattenDict(inDict, pre=None, values=True):
     '''
     pre = pre[:] if pre else []
     if isinstance(inDict, dict):
-        for key, value in inDict.iteritems():
+        for key, value in inDict.items():
             if isinstance(value, dict):
                 for d in flattenDict(value, pre + [key], values):
                     yield d
@@ -525,7 +525,7 @@ def flattenDict(inDict, pre=None, values=True):
                     if values:
                         if isinstance(value, str):
                             yield '.'.join(pre) + '.' + key + '=' + str(value)
-                        elif isinstance(value, unicode):
+                        elif isinstance(value, str):
                             yield '.'.join(pre) + '.' + key + '=' + value.encode('ascii', 'ignore')
                         elif value is None:
                             yield '.'.join(pre) + '.' + key + '=None'
@@ -535,7 +535,7 @@ def flattenDict(inDict, pre=None, values=True):
                     if values:
                         if isinstance(value, str):
                             yield key + '=' + str(value)
-                        elif isinstance(value, unicode):
+                        elif isinstance(value, str):
                             yield key + '=' + value.encode('ascii', 'ignore')
                         elif value is None:
                             yield key + '=None'
@@ -550,7 +550,7 @@ def dict2List(inObj):
        return a list of the dict keys and values
     '''
     if isinstance(inObj, dict):
-        for key, value in inObj.iteritems():
+        for key, value in inObj.items():
             if isinstance(value, dict):
                 for d in dict2List(value):
                     yield d
@@ -562,7 +562,7 @@ def dict2List(inObj):
                 yield key.encode('ascii', 'ignore').lower()
                 if isinstance(value, str):
                     yield value.lower()
-                elif isinstance(value, unicode):
+                elif isinstance(value, str):
                     yield value.encode('ascii', 'ignore').lower()
                 else:
                     yield value
@@ -570,7 +570,7 @@ def dict2List(inObj):
         for v in inObj:
             if isinstance(v, str):
                 yield v.lower()
-            elif isinstance(v, unicode):
+            elif isinstance(v, str):
                 yield v.encode('ascii', 'ignore').lower()
             elif isinstance(v, list):
                 for l in dict2List(v):

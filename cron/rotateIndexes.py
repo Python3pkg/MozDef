@@ -39,7 +39,7 @@ def esRotateIndexes():
     logger.debug('started')
     try:
         es = pyes.ES((list('{0}'.format(s) for s in options.esservers)))
-        indices = es.indices.stats()['indices'].keys()
+        indices = list(es.indices.stats()['indices'].keys())
         # calc dates for use in index names events-YYYYMMDD, alerts-YYYYMM, etc.
         odate_day = date.strftime(datetime.utcnow()-timedelta(days=1),'%Y%m%d')
         odate_month = date.strftime(datetime.utcnow()-timedelta(days=1),'%Y%m')

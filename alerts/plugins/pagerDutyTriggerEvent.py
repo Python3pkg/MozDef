@@ -44,8 +44,8 @@ class message(object):
 
     def onMessage(self, message):
         # here is where you do something with the incoming alert message
-        if 'summary' in message.keys() :
-            print message['summary']
+        if 'summary' in list(message.keys()) :
+            print(message['summary'])
 
             headers = {
                 'Content-type': 'application/json',
@@ -64,8 +64,8 @@ class message(object):
                             headers=headers,
                             data=payload,
             )
-            print r.status_code
-            print r.text        
+            print(r.status_code)
+            print(r.text)        
         # you can modify the message if needed
         # plugins registered with lower (>2) priority
         # will receive the message and can also act on it

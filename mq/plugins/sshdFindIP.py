@@ -41,9 +41,9 @@ class message(object):
         doSearch = False
         detailsExists = True
         foundIPv4 = ''
-        if 'summary' in message.keys():
-            if 'details' in message.keys() and isinstance(message['details'], dict):
-                if 'sourceipaddress' not in message['details'].keys():
+        if 'summary' in list(message.keys()):
+            if 'details' in list(message.keys()) and isinstance(message['details'], dict):
+                if 'sourceipaddress' not in list(message['details'].keys()):
                     doSearch = True
             else:
                 doSearch = True

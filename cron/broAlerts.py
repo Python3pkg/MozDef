@@ -58,7 +58,7 @@ def toUTC(suspectedDate,localTimeZone="US/Pacific"):
 
 def flattenDict(dictIn):
     sout=''
-    for k,v in dictIn.iteritems():
+    for k,v in dictIn.items():
         sout+='{0}: {1} '.format(k,v)
     return sout
 
@@ -71,13 +71,13 @@ def alertToMessageQueue(alertDict):
 
         #cherry pick items from the alertDict to send to the alerts messageQueue
         mqAlert=dict(severity='INFO',category='')
-        if 'severity' in alertDict.keys():
+        if 'severity' in list(alertDict.keys()):
             mqAlert['severity']=alertDict['severity']
-        if 'category' in alertDict.keys():
+        if 'category' in list(alertDict.keys()):
             mqAlert['category']=alertDict['category']
-        if 'utctimestamp' in alertDict.keys():
+        if 'utctimestamp' in list(alertDict.keys()):
             mqAlert['utctimestamp']=alertDict['utctimestamp']
-        if 'eventtimestamp' in alertDict.keys():
+        if 'eventtimestamp' in list(alertDict.keys()):
             mqAlert['eventtimestamp']=alertDict['eventtimestamp']
         mqAlert['summary']=alertDict['summary']
         channel.basic_publish(exchange=options.alertexchange,routing_key=options.alertqueue,body=json.dumps(mqAlert))
@@ -189,7 +189,7 @@ def createAlerts(es, indicatorCounts, threshold, description):
                     # append first X source IPs
                     alert['summary'] += ' sample sourceips: '
                     for e in i['events'][0:3]:
-                        if 'sourceipaddress' in e['_source']['details'].keys():
+                        if 'sourceipaddress' in list(e['_source']['details'].keys()):
                             alert['summary'] += '{0} '.format(e['_source']['details']['sourceipaddress'])
                     for e in i['events']:
                         # append the relevant events in text format to avoid errant ES issues.
@@ -208,7 +208,7 @@ def createAlerts(es, indicatorCounts, threshold, description):
                     # update with the alertid/index
                     # and update the alerttimestamp on the event itself so it's not re-alerted
                     for e in i['events']:
-                        if 'alerts' not in e['_source'].keys():
+                        if 'alerts' not in list(e['_source'].keys()):
                             e['_source']['alerts'] = []
                         e['_source']['alerts'].append(dict(index=alertResult['_index'], type=alertResult['_type'], id=alertResult['_id']))
                         e['_source']['alerttimestamp'] = toUTC(datetime.now()).isoformat()

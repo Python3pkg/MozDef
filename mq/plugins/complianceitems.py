@@ -22,16 +22,16 @@ class message(object):
         """
         for key in ['target', 'policy', 'check', 'compliance',
                     'link', 'utctimestamp']:
-            if key not in item.keys():
+            if key not in list(item.keys()):
                 return False
         for key in ['level', 'name', 'url']:
-            if key not in item['policy'].keys():
+            if key not in list(item['policy'].keys()):
                 return False
         for key in ['description', 'location', 'name', 'test']:
-            if key not in item['check'].keys():
+            if key not in list(item['check'].keys()):
                 return False
         for key in ['type', 'value']:
-            if key not in item['check']['test'].keys():
+            if key not in list(item['check']['test'].keys()):
                 return False
         return True
 

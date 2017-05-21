@@ -21,7 +21,7 @@ from multiprocessing import Process, Queue
 import random
 import logging
 from logging.handlers import SysLogHandler
-from Queue import Empty
+from queue import Empty
 from  requests.packages.urllib3.exceptions import ClosedPoolError
 import requests
 import time

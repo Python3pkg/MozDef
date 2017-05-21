@@ -34,7 +34,7 @@ def toUTC(suspectedDate,localTimeZone=None):
     objDate=None
     if localTimeZone is None:
         localTimeZone=options.defaultTimeZone
-    if type(suspectedDate) in (str,unicode):
+    if type(suspectedDate) in (str,str):
         objDate=parse(suspectedDate,fuzzy=True)
     elif type(suspectedDate)==datetime:
         objDate=suspectedDate
@@ -114,14 +114,14 @@ def main():
         if r.status_code == 200:
             oktaevents = json.loads(r.text)
             for event in oktaevents:
-                if 'published' in event.keys():
+                if 'published' in list(event.keys()):
                     if toUTC(event['published']) > state.data['lastrun']:
                         try:
                             mozdefEvent = dict()
                             mozdefEvent['utctimestamp']=toUTC(event['published']).isoformat()
                             mozdefEvent['category'] = 'okta'
                             mozdefEvent['tags'] = ['okta']
-                            if 'action' in event.keys() and 'message' in event['action'].keys():
+                            if 'action' in list(event.keys()) and 'message' in list(event['action'].keys()):
                                 mozdefEvent['summary'] = event['action']['message']
                             mozdefEvent['details'] = event
                             # Actor parsing
@@ -130,13 +130,13 @@ def main():
                             # This means the last instance of each attribute in all actors will be recorded in mozdef
                             # while others will be discarded
                             # Which ends up working out well in Okta's case.
-                            if 'actors' in event.keys():
+                            if 'actors' in list(event.keys()):
                                 for actor in event['actors']:
-                                    if 'ipAddress' in actor.keys():
+                                    if 'ipAddress' in list(actor.keys()):
                                         mozdefEvent['details']['sourceipaddress'] = actor['ipAddress']
-                                    if 'login' in actor.keys():
+                                    if 'login' in list(actor.keys()):
                                         mozdefEvent['details']['username'] = actor['login']
-                                    if 'requestUri' in actor.keys():
+                                    if 'requestUri' in list(actor.keys()):
                                         mozdefEvent['details']['source_uri'] = actor['requestUri']
                             jbody=json.dumps(mozdefEvent)
                             res=es.index(index='events',doc_type='okta',doc=jbody)

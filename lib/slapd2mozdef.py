@@ -75,7 +75,7 @@ class Pygtail(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         """
         Return the next line in the file, updating the offset.
         """
@@ -107,7 +107,7 @@ class Pygtail(object):
 
     def __next__(self):
         """`__next__` is the Python 3 version of `next`"""
-        return self.next()
+        return next(self)
 
     def readlines(self):
         """
@@ -189,7 +189,7 @@ class Pygtail(object):
 def searchforBind(line,bindDetails):
     '''catch every bind of interest in a line, store in a dictionary to allow backtrack into the srcIP and bind result.'''
     for bindConn in bindConnre.findall(line):
-        if '{0}:{1}:{2}'.format(bindConn[0],bindConn[1],bindConn[2]) not in bindDetails.keys():
+        if '{0}:{1}:{2}'.format(bindConn[0],bindConn[1],bindConn[2]) not in list(bindDetails.keys()):
             #a new bind transaction we've not seen with default values
             bindDetails['{0}:{1}:{2}'.format(bindConn[0],bindConn[1],bindConn[2])]=dict(conn=bindConn[0],op=bindConn[1],dn=bindConn[2],errCode=None,result='unknown',ipAddress='0.0.0.0',eventtime=dateutil.parser.parse(line[:20],fuzzy=True,tzinfos=tzlocal).isoformat())
 
@@ -214,7 +214,7 @@ def postBindResults(bindDetails,pt,linecache,eof=False):
     #httpsession = requests.Session() is declared globally to avoid performance hit of instantiating it per line.
     posts=[]
     cache=''.join(linecache)
-    for bind in bindDetails.keys():
+    for bind in list(bindDetails.keys()):
         #if we have a complete record, or we have no hope of getting a complete record, or we are at the end of file: post the transaction.
         if (bindDetails[bind]['errCode'] is not None and bindDetails[bind]['ipAddress'] !='0.0.0.0') \
             or (bindDetails[bind]['conn'] not in cache) \
@@ -260,7 +260,7 @@ def postBindResults(bindDetails,pt,linecache,eof=False):
 def trimBindDetails(bindDetails,linecache):
     '''cull the dictionary of transactions where we've found the entire record'''
     cache=''.join(linecache)
-    for bind in bindDetails.keys():
+    for bind in list(bindDetails.keys()):
         if bindDetails[bind]['errCode'] is not None and bindDetails[bind]['ipAddress'] !='0.0.0.0':
             bindDetails.pop(bind,None)
         elif bindDetails[bind]['conn'] not in cache:

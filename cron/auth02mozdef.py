@@ -16,8 +16,8 @@ try:
     quote_url = urllib.parse.quote
 except ImportError:
     #Well hello there python2 user!
-    import urllib
-    quote_url = urllib.quote
+    import urllib.request, urllib.parse, urllib.error
+    quote_url = urllib.parse.quote
 
 class DotDict(dict):
     '''dict.item notation for dict()'s'''
@@ -26,7 +26,7 @@ class DotDict(dict):
     __delattr__ = dict.__delitem__
 
     def __init__(self, dct):
-        for key, value in dct.items():
+        for key, value in list(dct.items()):
             if hasattr(value, 'keys'):
                 value = DotDict(value)
             self[key] = value

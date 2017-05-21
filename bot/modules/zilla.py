@@ -17,7 +17,7 @@ from kitnirc.user import User
 import threading
 import time
 import json
-import bugzilla
+from . import bugzilla
 
 # get a logger for the module
 # via the Python logging library.

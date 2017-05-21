@@ -37,7 +37,7 @@ def toUTC(suspectedDate,localTimeZone=None):
     objDate=None
     if localTimeZone is None:
         localTimeZone=options.defaultTimeZone
-    if type(suspectedDate) in (str,unicode):
+    if type(suspectedDate) in (str,str):
         objDate=parse(suspectedDate,fuzzy=True)
     elif type(suspectedDate)==datetime:
         objDate=suspectedDate
@@ -61,7 +61,7 @@ def flattenDict(inDict, pre=None, values=True):
     '''
     pre = pre[:] if pre else []
     if isinstance(inDict, dict):
-        for key, value in inDict.iteritems():
+        for key, value in inDict.items():
             if isinstance(value, dict):
                 for d in flattenDict(value, pre + [key], values):
                     yield d
@@ -74,7 +74,7 @@ def flattenDict(inDict, pre=None, values=True):
                     if values:
                         if isinstance(value, str):
                             yield '.'.join(pre) + '.' + key + '=' + str(value)
-                        elif isinstance(value, unicode):
+                        elif isinstance(value, str):
                             yield '.'.join(pre) + '.' + key + '=' + value.encode('ascii', 'ignore')
                         elif value is None:
                             yield '.'.join(pre) + '.' + key + '=None'
@@ -84,7 +84,7 @@ def flattenDict(inDict, pre=None, values=True):
                     if values:
                         if isinstance(value, str):
                             yield key + '=' + str(value)
-                        elif isinstance(value, unicode):
+                        elif isinstance(value, str):
                             yield key + '=' + value.encode('ascii', 'ignore')
                         elif value is None:
                             yield key + '=None'
@@ -141,7 +141,7 @@ def main():
 
         # fix up the event craziness to a flatter format
         events=[]
-        if 'items' in response.keys():
+        if 'items' in list(response.keys()):
             for i in response['items']:
                 # flatten the sub dict/lists to pull out the good parts
                 event=dict(category='google')
@@ -161,17 +161,17 @@ def main():
 
                 # find important keys
                 # and adjust their location/name
-                if 'ipaddress' in details.keys():
+                if 'ipaddress' in list(details.keys()):
                     # it's the source ip
                     details['sourceipaddress']=details['ipaddress']
                     del details['ipaddress']
 
-                if 'id_time' in details.keys():
+                if 'id_time' in list(details.keys()):
                     event['timestamp']=details['id_time']
                     event['utctimestamp']=details['id_time']
-                if 'events_name' in details.keys():
+                if 'events_name' in list(details.keys()):
                     event['summary']+= details['events_name'] + ' '
-                if 'actor_email' in details.keys():
+                if 'actor_email' in list(details.keys()):
                     event['summary']+= details['actor_email'] + ' '
 
                 event['details']=details

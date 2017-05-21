@@ -141,7 +141,7 @@ def index():
     except ValueError as e:
         response.status = 500
 
-    if 'ipaddress' in requestDict.keys() and isIPv4(requestDict['ipaddress']):
+    if 'ipaddress' in list(requestDict.keys()) and isIPv4(requestDict['ipaddress']):
         response.content_type = "application/json"
         response.body = getWhois(requestDict['ipaddress'])
     else:
@@ -164,7 +164,7 @@ def ipintel():
         requestDict = json.loads(arequest)
     except ValueError as e:
         response.status = 500
-    if 'ipaddress' in requestDict.keys() and isIPv4(requestDict['ipaddress']):
+    if 'ipaddress' in list(requestDict.keys()) and isIPv4(requestDict['ipaddress']):
         response.content_type = "application/json"
     else:
         response.status = 500
@@ -187,7 +187,7 @@ def index():
     except ValueError as e:
         response.status = 500
 
-    if 'ipaddress' in requestDict.keys() and isIPv4(requestDict['ipaddress']):
+    if 'ipaddress' in list(requestDict.keys()) and isIPv4(requestDict['ipaddress']):
         response.content_type = "application/json"
         response.body = getIPCIF(requestDict['ipaddress'])
     else:
@@ -213,7 +213,7 @@ def index():
     except ValueError as e:
         response.status = 500
         return
-    if 'ipaddress' in requestDict.keys() and isIPv4(requestDict['ipaddress']):
+    if 'ipaddress' in list(requestDict.keys()) and isIPv4(requestDict['ipaddress']):
         url="https://isc.sans.edu/api/ip/"
 
         dresponse = requests.get('{0}{1}?json'.format(url, requestDict['ipaddress']))
@@ -335,7 +335,7 @@ def createIncident():
         return response
 
     # Validating Incident phase type
-    if (type(incident['phase']) not in (str, unicode) or
+    if (type(incident['phase']) not in (str, str) or
         incident['phase'] not in validIncidentPhases):
 
         response.status = 500
@@ -465,7 +465,7 @@ def registerPlugins():
                         mdescription = mfile
 
                     if isinstance(mreg, list):
-                        print('[*] plugin {0} registered to receive messages from /{1}'.format(mfile, mreg))
+                        print(('[*] plugin {0} registered to receive messages from /{1}'.format(mfile, mreg)))
                         pluginList.append((mfile, mname, mdescription, mreg, mpriority, mclass))
 
 
@@ -659,7 +659,7 @@ def verisSummary(verisRegex=None):
                                                    "_id": 0
                                                    } }
                                    ])
-        if 'ok' in iveris.keys() and 'result' in iveris.keys():
+        if 'ok' in list(iveris.keys()) and 'result' in list(iveris.keys()):
             return json.dumps(iveris['result'], default=json_util.default)
         else:
             return json.dumps(list())

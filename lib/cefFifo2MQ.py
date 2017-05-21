@@ -30,7 +30,7 @@ import errno
 import select
 import kombu
 from kombu import Connection, Queue, Exchange
-from Queue import Empty, Full
+from queue import Empty, Full
 
 logger = logging.getLogger(sys.argv[0])
 # sample CEF record:
@@ -77,10 +77,10 @@ class Buffer(deque):
             self.append(i)
 
     def peek(self, how_many):
-        return ''.join([self[i] for i in xrange(how_many)])
+        return ''.join([self[i] for i in range(how_many)])
 
     def get(self, how_many):
-        return ''.join([self.popleft() for _ in xrange(how_many)])
+        return ''.join([self.popleft() for _ in range(how_many)])
 
 
 def isNumber(s):
@@ -106,7 +106,7 @@ def toUTC(suspectedDate, localTimeZone=None):
             objDate = suspectedDate
         elif isNumber(suspectedDate):   # epoch?
             objDate = datetime.fromtimestamp(float(suspectedDate))
-        elif type(suspectedDate) in (str, unicode):
+        elif type(suspectedDate) in (str, str):
             objDate = parse(suspectedDate, fuzzy=True)
 
         if objDate.tzinfo is None:
@@ -177,20 +177,20 @@ def parseCEF(acef):
     '''
     rawcefdict = {}
     cef = {}
-    cef[u'version'] = 0
-    cef[u'details'] = {}
+    cef['version'] = 0
+    cef['details'] = {}
     fields = []
 
     try:
         headers = acef.split('|')
-        cef[u'details'][u'version'] = headers[0].replace('CEF:', '')
-        cef[u'details'][u'devicevendor'] = headers[1]
-        cef[u'details'][u'deviceproduct'] = headers[2]
-        cef[u'details'][u'deviceversion'] = headers[3]
-        cef[u'details'][u'signatureid'] = headers[4]
-        cef[u'details'][u'name'] = headers[5]
-        cef[u'details'][u'severity'] = headers[6]
-        cef[u'summary'] = headers[5]
+        cef['details']['version'] = headers[0].replace('CEF:', '')
+        cef['details']['devicevendor'] = headers[1]
+        cef['details']['deviceproduct'] = headers[2]
+        cef['details']['deviceversion'] = headers[3]
+        cef['details']['signatureid'] = headers[4]
+        cef['details']['name'] = headers[5]
+        cef['details']['severity'] = headers[6]
+        cef['summary'] = headers[5]
     except IndexError as e:
         logger.error('Index error parsing CEF headers in {0}'.format(acef[:200]))
         return None
@@ -231,21 +231,21 @@ def parseCEF(acef):
     for field in fields:
         if 'label' in field.lower():
             # this is a label for another field..fix up our dict to have the label as key and data as value
-            if field.lower().replace('label', '') in rawcefdict.keys():
+            if field.lower().replace('label', '') in list(rawcefdict.keys()):
                 cef['details'][rawcefdict[field.lower()].lower()] = rawcefdict[field.lower().replace('label', '')].decode('ascii', 'ignore')
                 rawcefdict.pop(field.lower().replace('label', ''))
             rawcefdict.pop(field.lower(), '')
 
     # add whatever is left (non label field or value) to the cef dictionary
-    for k, v in rawcefdict.iteritems():
+    for k, v in rawcefdict.items():
         cef['details'][k.decode('ascii', 'ignore').lower()] = v.decode('ascii', 'ignore')
 
     # pick an eventtimestamp if one exists.
-    if 'start' in cef['details'].keys():
+    if 'start' in list(cef['details'].keys()):
         cef['timestamp'] = toUTC(cef['details']['start']).isoformat()
-    elif 'end' in cef['details'].keys():
+    elif 'end' in list(cef['details'].keys()):
         cef['timestamp'] = toUTC(cef['details']['end']).isoformat()
-    elif 'rt' in cef['details'].keys():
+    elif 'rt' in list(cef['details'].keys()):
         cef['timestamp'] = toUTC(cef['details']['rt']).isoformat()
     else:
         cef['timestamp'] = toUTC(datetime.now()).isoformat()

@@ -8,7 +8,7 @@
 # Contributors:
 # Aaron Meihm <ameihm@mozilla.com>
 
-from lib.alerttask import AlertTask
+from .lib.alerttask import AlertTask
 import pyes
 
 class AlertGeomodel(AlertTask):

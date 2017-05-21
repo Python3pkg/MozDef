@@ -8,7 +8,7 @@
 # Contributors:
 # Anthony Verez averez@mozilla.com
 
-from lib.alerttask import AlertTask
+from .lib.alerttask import AlertTask
 import pyes
 
 class AlertCloudtrail(AlertTask):
@@ -35,9 +35,9 @@ class AlertCloudtrail(AlertTask):
         summary = ('{0} called {1} from {2}'.format(event['_source']['userIdentity']['userName'], event['_source']['eventName'], event['_source']['sourceIPAddress']))
         if event['_source']['eventName'] == 'RunInstances':
             for i in event['_source']['responseElements']['instancesSet']['items']:
-                if 'privateDnsName' in i.keys():
+                if 'privateDnsName' in list(i.keys()):
                     summary += (' running {0} '.format(i['privateDnsName']))
-                elif 'instanceId' in i.keys():
+                elif 'instanceId' in list(i.keys()):
                     summary += (' running {0} '.format(i['instanceId']))
                 else:
                     summary += (' running {0} '.format(flattenDict(i)))

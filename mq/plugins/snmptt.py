@@ -20,8 +20,8 @@ class message(object):
         self.regex = re.compile(r'(?P<trapname>\S+) (?P<trapseverity>\S+) "Status Events" (?P<source_host>\S+) - (?P<trappayload>.*)')
 
     def onMessage(self, message, metadata):
-        if 'details' in message.keys():
-            if 'program' in message['details'].keys():
+        if 'details' in list(message.keys()):
+            if 'program' in list(message['details'].keys()):
                 if 'snmptt' == message['details']['program']:
                     msg_unparsed = message['summary']
                     search = re.search(self.regex, msg_unparsed)

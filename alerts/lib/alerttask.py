@@ -21,7 +21,7 @@ from dateutil.parser import parse
 from collections import Counter
 from celery import Task
 from celery.utils.log import get_task_logger
-from config import RABBITMQ, ES, OPTIONS
+from .config import RABBITMQ, ES, OPTIONS
 
 def toUTC(suspectedDate, localTimeZone=None):
     '''make a UTC date out of almost anything'''
@@ -29,7 +29,7 @@ def toUTC(suspectedDate, localTimeZone=None):
     objDate = None
     if localTimeZone is None:
         localTimeZone= OPTIONS['defaulttimezone']
-    if type(suspectedDate) in (str, unicode):
+    if type(suspectedDate) in (str, str):
         objDate = parse(suspectedDate, fuzzy=True)
     elif type(suspectedDate) == datetime:
         objDate = suspectedDate
@@ -52,7 +52,7 @@ def keypaths(nested):
     ''' return a list of nested dict key paths
         like: [u'_source', u'details', u'hostname']
     '''
-    for key, value in nested.iteritems():
+    for key, value in nested.items():
         if isinstance(value, collections.Mapping):
             for subkey, subvalue in keypaths(value):
                 yield [key] + subkey, subvalue
@@ -167,13 +167,13 @@ class AlertTask(Task):
         try:
             # cherry pick items from the alertDict to send to the alerts messageQueue
             mqAlert = dict(severity='INFO', category='')
-            if 'severity' in alertDict.keys():
+            if 'severity' in list(alertDict.keys()):
                 mqAlert['severity'] = alertDict['severity']
-            if 'category' in alertDict.keys():
+            if 'category' in list(alertDict.keys()):
                 mqAlert['category'] = alertDict['category']
-            if 'utctimestamp' in alertDict.keys():
+            if 'utctimestamp' in list(alertDict.keys()):
                 mqAlert['utctimestamp'] = alertDict['utctimestamp']
-            if 'eventtimestamp' in alertDict.keys():
+            if 'eventtimestamp' in list(alertDict.keys()):
                 mqAlert['eventtimestamp'] = alertDict['eventtimestamp']
             mqAlert['summary'] = alertDict['summary']
             self.log.debug(mqAlert)
@@ -246,9 +246,9 @@ class AlertTask(Task):
         must = []
         should = []
         must_not = []
-        for filtid in data['services']['filter']['list'].keys():
+        for filtid in list(data['services']['filter']['list'].keys()):
             filt = data['services']['filter']['list'][filtid]
-            if filt['active'] and 'query' in filt.keys():
+            if filt['active'] and 'query' in list(filt.keys()):
                 value = filt['query'].split(':')[-1]
                 fieldname = filt['query'].split(':')[0].split('.')[-1]
                 # self.log.info(fieldname)
@@ -256,7 +256,7 @@ class AlertTask(Task):
 
                 # field: fieldname
                 # query: value
-                if 'field' in filt.keys():
+                if 'field' in list(filt.keys()):
                     fieldname = filt['field']
                     value = filt['query']
                     if '\"' in value:
@@ -480,7 +480,7 @@ class AlertTask(Task):
         """
         try:
             for event in events:
-                if 'alerts' not in event['_source'].keys():
+                if 'alerts' not in list(event['_source'].keys()):
                     event['_source']['alerts'] = []
                 event['_source']['alerts'].append({
                     'index': alertResultES['_index'],

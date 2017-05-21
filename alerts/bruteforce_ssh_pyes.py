@@ -9,7 +9,7 @@
 # Anthony Verez averez@mozilla.com
 # Jeff Bryner jbryner@mozilla.com
 
-from lib.alerttask import AlertTask
+from .lib.alerttask import AlertTask
 import pyes
 
 class AlertBruteforceSsh(AlertTask):

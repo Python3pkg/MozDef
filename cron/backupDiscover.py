@@ -26,7 +26,7 @@ def discover():
     config_dobackup = []
     config_rotation = []
     config_pruning = []
-    for index in indices.keys():
+    for index in list(indices.keys()):
         index_template = index
         freq = 'none'
         pruning = '0'

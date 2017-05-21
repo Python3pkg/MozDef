@@ -8,7 +8,7 @@
 # Contributors:
 # Michal Purzynski michal@mozilla.com
 
-from lib.alerttask import AlertTask
+from .lib.alerttask import AlertTask
 import pyes
 
 class AlertHTTPErrors(AlertTask):

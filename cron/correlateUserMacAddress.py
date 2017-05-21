@@ -126,8 +126,8 @@ def esSearch(es, macassignments=None, begindateUTC=None, enddateUTC=None):
         for r in rawresults['hits']['hits']:
             fields = re.search(usermacre,r['_source']['summary'])
             if fields:
-                if '{0} {1}'.format(fields.group('username'),fields.group('macaddress')) not in correlations.keys():
-                    if fields.group('macaddress')[0:8].lower() in macassignments.keys():
+                if '{0} {1}'.format(fields.group('username'),fields.group('macaddress')) not in list(correlations.keys()):
+                    if fields.group('macaddress')[0:8].lower() in list(macassignments.keys()):
                         entity=macassignments[fields.group('macaddress')[0:8].lower()]
                     else:
                         entity='unknown'

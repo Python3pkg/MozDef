@@ -19,8 +19,8 @@ class message(object):
  
     def onMessage(self, message):
         # here is where you do something with the incoming alert message
-        if 'summary' in message.keys() :
-            print message['summary']
+        if 'summary' in list(message.keys()) :
+            print(message['summary'])
         
         # you can modify the message if needed
         # plugins registered with lower (>2) priority

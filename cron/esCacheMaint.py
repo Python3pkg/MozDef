@@ -72,7 +72,7 @@ def toUTC(suspectedDate, localTimeZone=None):
         # epoch? but seconds/milliseconds/nanoseconds (lookin at you heka)
         epochDivisor = int(str(1) + '0'*(digits(suspectedDate) % 10))
         objDate = datetime.fromtimestamp(float(suspectedDate/epochDivisor))
-    elif type(suspectedDate) in (str, unicode):
+    elif type(suspectedDate) in (str, str):
         objDate = parse(suspectedDate, fuzzy=True)
 
     if objDate.tzinfo is None:

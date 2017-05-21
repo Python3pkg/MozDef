@@ -40,7 +40,7 @@ def esPruneIndexes():
     logger.debug('started')
     try:
         es = pyes.ES((list('{0}'.format(s) for s in options.esservers)))
-        indices = es.indices.stats()['indices'].keys()
+        indices = list(es.indices.stats()['indices'].keys())
         # do the pruning
         for (index, dobackup, rotation, pruning) in zip(options.indices,
             options.dobackup, options.rotation, options.pruning):

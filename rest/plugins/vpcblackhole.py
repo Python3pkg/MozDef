@@ -8,7 +8,7 @@
 
 import os
 import sys
-import ConfigParser
+import configparser
 from datetime import datetime, timedelta
 import json
 import netaddr
@@ -73,7 +73,7 @@ class message(object):
         
 
     def initConfiguration(self):
-        myparser = ConfigParser.ConfigParser()
+        myparser = configparser.ConfigParser()
         myparser.read(self.configfile)
         cur_sections = myparser.sections()
         for cur_section in cur_sections:
@@ -175,10 +175,10 @@ class message(object):
         try: 
             for i in request.json:
                 # were we checked?
-                if self.name in i.keys():
-                    sendToBHVPC = i.values()[0]
-                if 'ipaddress' in i.keys():
-                    ipaddress = i.values()[0]
+                if self.name in list(i.keys()):
+                    sendToBHVPC = list(i.values())[0]
+                if 'ipaddress' in list(i.keys()):
+                    ipaddress = list(i.values())[0]
 
             # are we configured?
             if self.multioptions is None:
